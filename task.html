@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Task</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body
+    class="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white min-h-screen"
+  >
+    <!-- Pop-up Toast -->
+    <div id="rewardPopupContainer"></div>
+
+    <!-- Navbar -->
+    <div id="navbar"></div>
+
+    <!-- CONTENT -->
+    <div class="max-w-5xl mx-auto px-6 py-8" id="app"></div>
+
+    <script type="module">
+      import { loadComponent } from "./assets/js/app.js";
+      import { renderTasks } from "./assets/js/ui/taskUI.js";
+
+      loadComponent("navbar", "components/navbar.html");
+      loadComponent("rewardPopupContainer", "components/rewardPopup.html");
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("app").innerHTML = `
+        
+        <!-- HEADER -->
+        <div class="mb-6">
+          <h1 class="text-3xl font-bold">📜 Task Quest</h1>
+          <p class="text-gray-400 text-sm">Turn your work into missions</p>
+        </div>
+
+        <!-- INPUT -->
+        <div class="flex gap-2 mb-6">
+          <input id="taskInput"
+            class="flex-1 p-3 rounded-xl bg-gray-900 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Tambah task...">
+
+          <button onclick="addTaskUI()"
+            class="bg-blue-500 hover:bg-blue-600 px-5 rounded-xl font-semibold">
+            Add
+          </button>
+        </div>
+
+        <!-- SUMMARY -->
+        <div id="taskSummary" class="mb-6"></div>
+
+        <!-- TASK LIST -->
+        <div id="taskList"></div>
+
+      `;
+
+        renderTasks();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Training</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body
+    class="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white min-h-screen"
+  >
+    <!-- Navbar -->
+    <div id="navbar"></div>
+
+    <!-- CONTENT -->
+    <div class="max-w-3xl mx-auto px-6 py-10 text-center" id="app"></div>
+
+    <script type="module">
+      import { loadComponent } from "./assets/js/app.js";
+      import { renderTraining } from "./assets/js/ui/trainingUI.js";
+
+      loadComponent("navbar", "components/navbar.html");
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("app").innerHTML = `
+        
+        <h1 class="text-3xl font-bold mb-2">🏋️ Training</h1>
+        <p class="text-gray-400 mb-8">Push yourself beyond limits</p>
+
+        <!-- STATS -->
+        <div id="trainingStats" class="mb-8"></div>
+
+        <!-- BUTTON -->
+        <button id="trainBtn"
+          class="bg-gradient-to-r from-green-400 to-blue-500 
+          hover:scale-105 active:scale-95 transition
+          px-12 py-6 rounded-3xl text-2xl font-bold shadow-xl">
+          
+          TRAIN 💪
+
+        </button>
+
+        <!-- FEEDBACK -->
+        <div id="trainingLog" class="mt-6 text-sm text-gray-400"></div>
+
+      `;
+
+        renderTraining();
+      });
+    </script>
+  </body>
+</html>

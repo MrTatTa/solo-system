@@ -1,0 +1,49 @@
+<div
+  class="bg-gray-900/80 backdrop-blur border-b border-gray-700 px-6 py-3 flex justify-between items-center"
+>
+  <!-- LEFT -->
+  <div class="flex items-center gap-3">
+    <div
+      class="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg"
+    ></div>
+    <h1 class="text-lg font-bold tracking-wide">Solo System</h1>
+  </div>
+
+  <!-- NAV -->
+  <div class="flex gap-6 text-sm font-medium">
+    <a href="index.html" class="nav-link">Dashboard</a>
+    <a href="inventory.html" class="nav-link">Inventory</a>
+    <a href="shop.html" class="nav-link">Shop</a>
+    <a href="quest.html" class="nav-link">Daily Quest</a>
+    <a href="task.html" class="nav-link">Task</a>
+    <a href="schedule.html" class="nav-link">Schedule</a>
+    <a href="training.html" class="nav-link">Training</a>
+  </div>
+</div>
+
+<style>
+  .nav-link {
+    position: relative;
+    color: #9ca3af;
+    transition: 0.2s;
+  }
+
+  .nav-link:hover {
+    color: #22c55e;
+  }
+
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: #22c55e;
+    transition: 0.3s;
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
+</style>

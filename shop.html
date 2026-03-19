@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body
+    class="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white min-h-screen"
+  >
+    <!-- Navbar -->
+    <div id="navbar"></div>
+
+    <!-- CONTENT -->
+    <div class="max-w-6xl mx-auto px-6 py-8" id="app"></div>
+
+    <script type="module">
+      import { loadComponent } from "./assets/js/app.js";
+      import { initShop } from "./assets/js/modules/shop.js";
+      import { renderShop } from "./assets/js/ui/shopUI.js";
+
+      loadComponent("navbar", "components/navbar.html");
+
+      document.addEventListener("DOMContentLoaded", () => {
+        initShop();
+
+        document.getElementById("app").innerHTML = `
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h1 class="text-3xl font-bold">🛒 Shop</h1>
+              <p class="text-gray-400 text-sm">Buy items & upgrade yourself</p>
+            </div>
+
+            <button onclick="refreshShopUI()" 
+              class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-xl text-sm">
+              🔄 Refresh Shop
+            </button>
+          </div>
+
+          <div id="shopList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        `;
+
+        renderShop();
+      });
+    </script>
+  </body>
+</html>

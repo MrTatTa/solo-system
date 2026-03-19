@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Schedule</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body
+    class="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white min-h-screen"
+  >
+    <!-- Navbar -->
+    <div id="navbar"></div>
+
+    <!-- CONTENT -->
+    <div class="max-w-5xl mx-auto px-6 py-8" id="app"></div>
+
+    <script type="module">
+      import { loadComponent } from "./assets/js/app.js";
+      import { renderSchedule } from "./assets/js/ui/scheduleUI.js";
+
+      loadComponent("navbar", "components/navbar.html");
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("app").innerHTML = `
+        
+        <!-- HEADER -->
+        <div class="mb-6">
+          <h1 class="text-3xl font-bold">📅 Schedule</h1>
+          <p class="text-gray-400 text-sm">Plan your day like a system</p>
+        </div>
+
+        <!-- FORM -->
+        <div class="grid md:grid-cols-4 gap-3 mb-6">
+
+          <input id="schTitle"
+            placeholder="Kegiatan"
+            class="p-3 rounded-xl bg-gray-900 border border-gray-700">
+
+          <select id="schDay"
+            class="p-3 rounded-xl bg-gray-900 border border-gray-700">
+            <option>Senin</option>
+            <option>Selasa</option>
+            <option>Rabu</option>
+            <option>Kamis</option>
+            <option>Jumat</option>
+            <option>Sabtu</option>
+            <option>Minggu</option>
+          </select>
+
+          <input type="time" id="schStart"
+            class="p-3 rounded-xl bg-gray-900 border border-gray-700">
+
+          <input type="time" id="schEnd"
+            class="p-3 rounded-xl bg-gray-900 border border-gray-700">
+
+        </div>
+
+        <button onclick="addScheduleUI()"
+          class="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded-xl font-semibold mb-6">
+          Add Schedule
+        </button>
+
+        <!-- LIST -->
+        <div id="scheduleList"></div>
+
+      `;
+
+        renderSchedule();
+      });
+    </script>
+  </body>
+</html>
