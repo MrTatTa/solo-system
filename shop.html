@@ -9,6 +9,11 @@
   <body
     class="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white min-h-screen"
   >
+    <audio id="bgm" loop>
+      <source src="assets/audio/bgm.mp3" type="audio/mpeg" />
+    </audio>
+    <div id="shopPopupContainer"></div>
+
     <!-- Navbar -->
     <div id="navbar"></div>
 
@@ -18,31 +23,41 @@
     <script type="module">
       import { loadComponent } from "./assets/js/app.js";
       import { initShop } from "./assets/js/modules/shop.js";
-      import { renderShop } from "./assets/js/ui/shopUI.js";
+      import { renderShop, updateGoldUI } from "./assets/js/ui/shopUI.js";
 
-      loadComponent("navbar", "components/navbar.html");
+      document.addEventListener("DOMContentLoaded", async () => {
+        // 🔥 PENTING: tunggu component ke-load dulu
+        await loadComponent("shopPopupContainer", "components/shopPopup.html");
+        await loadComponent("navbar", "components/navbar.html");
 
-      document.addEventListener("DOMContentLoaded", () => {
         initShop();
 
         document.getElementById("app").innerHTML = `
-          <div class="flex justify-between items-center mb-6">
-            <div>
-              <h1 class="text-3xl font-bold">🛒 Shop</h1>
-              <p class="text-gray-400 text-sm">Buy items & upgrade yourself</p>
-            </div>
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h1 class="text-3xl font-bold">🛒 Shop</h1>
+          <p class="text-gray-400 text-sm">Buy items & upgrade yourself</p>
+        </div>
 
-            <button onclick="refreshShopUI()" 
-              class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-xl text-sm">
-              🔄 Refresh Shop
-            </button>
+        <div class="flex items-center gap-4">
+          <div id="goldDisplay" class="text-yellow-400 font-bold text-lg">
+            💰 0
           </div>
 
-          <div id="shopList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
-        `;
+          <button onclick="refreshShopUI()"
+            class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-xl text-sm">
+            🔄 Refresh Shop
+          </button>
+        </div>
+      </div>
+
+      <div id="shopList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    `;
 
         renderShop();
+        updateGoldUI();
       });
     </script>
+    <script type="module" src="./assets/js/modules/audio.js"></script>
   </body>
 </html>

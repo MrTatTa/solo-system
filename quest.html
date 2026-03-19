@@ -9,6 +9,9 @@
   <body
     class="bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white min-h-screen"
   >
+    <audio id="bgm" loop>
+      <source src="assets/audio/bgm.mp3" type="audio/mpeg" />
+    </audio>
     <!-- Pop-up Toast -->
     <div id="rewardPopupContainer"></div>
 
@@ -47,5 +50,6 @@
         renderQuests();
       });
     </script>
+    <script type="module" src="./assets/js/modules/audio.js"></script>
   </body>
 </html>

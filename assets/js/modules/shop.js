@@ -1,6 +1,7 @@
 import { save, load } from "../storage.js";
 import { addItem } from "./inventory.js";
 import { getPlayer, savePlayer } from "./player.js";
+import { emit } from "./eventBus.js"; // ✅ NEW
 
 let shop = load("shop") || [];
 let lastRefresh = load("shopLastRefresh") || 0;
@@ -8,11 +9,23 @@ let refreshCount = load("shopRefreshCount") || 0;
 
 // 🎯 RARITY
 const RARITY = {
-    common: { chance: 60, price: 50 },
-    rare: { chance: 25, price: 100 },
-    epic: { chance: 10, price: 200 },
-    legendary: { chance: 5, price: 400 }
+    common: { chance: 60, basePrice: 200 },
+    rare: { chance: 25, basePrice: 600 },
+    epic: { chance: 10, basePrice: 1500 },
+    legendary: { chance: 5, basePrice: 4000 }
 };
+
+function getPlayerMultiplier() {
+    const player = getPlayer();
+
+    // scaling berdasarkan level / exp (pilih salah satu)
+    const level = player.level || 1;
+
+    return 1 + (level * 0.1);
+    // contoh:
+    // lvl 1 = 1.1
+    // lvl 10 = 2x
+}
 
 // 🎁 ITEM POOL
 const ITEM_POOL = {
@@ -66,20 +79,24 @@ function generateShop(count = 10) {
 
         const baseItem = pool[Math.floor(Math.random() * pool.length)];
 
-        // 🔥 IMPORTANT: bentuk object inventory-ready
         const finalItem = {
-            id: Date.now() + Math.random(), // biar unik
+            id: Date.now() + Math.random(),
             name: baseItem.name,
             effect: baseItem.effect,
             value: baseItem.value || 0,
             rarity: rarity
         };
 
+        const base = RARITY[rarity].basePrice;
+        const multiplier = getPlayerMultiplier();
+        const randomFactor = 0.85 + Math.random() * 0.3;
+
         items.push({
             id: Date.now() + i,
             rarity,
-            price: Math.floor(RARITY[rarity].price * (0.8 + Math.random() * 0.4)),
-            item: finalItem // ✅ sudah clean
+
+            price: Math.floor(base * multiplier * randomFactor),
+            item: finalItem
         });
     }
 
@@ -117,8 +134,9 @@ export function buyItem(id) {
     player.gold -= data.price;
     savePlayer();
 
-    // 🔥 FIX: kirim object lengkap
     addItem(data.item);
+
+    emit("goldChanged", player.gold); // 🔥 CORE FIX
 
     return true;
 }
@@ -138,6 +156,8 @@ export function refreshShop() {
 
     save("shop", shop);
     save("shopRefreshCount", refreshCount);
+
+    emit("goldChanged", player.gold); // 🔥 CORE FIX
 
     return true;
 }

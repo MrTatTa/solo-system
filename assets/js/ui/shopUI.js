@@ -1,81 +1,103 @@
 import { getShop, buyItem, refreshShop, getRefreshPrice } from "../modules/shop.js";
 import { renderInventory } from "./inventoryUI.js";
 import { renderDashboard } from "./dashboardUI.js";
+import { getPlayer } from "../modules/player.js";
+import { on } from "../modules/eventBus.js";
+import { showShopPopup } from "./shopPopup.js"; // ✅ NEW
 
+// 🛒 RENDER SHOP
 export function renderShop() {
-    const container = document.getElementById("shopList");
-    const items = getShop();
+  const container = document.getElementById("shopList");
+  if (!container) return;
 
-    container.innerHTML = items.map(i => {
+  const items = getShop();
 
-        const color = {
-            common: "border-gray-600",
-            rare: "border-blue-500",
-            epic: "border-purple-500",
-            legendary: "border-yellow-500"
-        }[i.rarity];
+  container.innerHTML = items.map(i => {
 
-        return `
-        <div class="bg-gray-900/60 ${color} border p-5 rounded-2xl shadow hover:scale-105 transition">
+    const color = {
+      common: "border-gray-600",
+      rare: "border-blue-500",
+      epic: "border-purple-500",
+      legendary: "border-yellow-500"
+    }[i.rarity];
 
-          <div class="text-center">
+    return `
+      <div class="bg-gray-900/60 ${color} border p-5 rounded-2xl shadow hover:scale-105 transition">
 
-            <p class="font-semibold mb-1">${i.item.name}</p>
+        <div class="text-center">
 
-            <p class="text-xs text-gray-400 mb-2 uppercase">
-              ${i.rarity}
-            </p>
+          <p class="font-semibold mb-1">${i.item.name}</p>
 
-            <p class="text-sm text-gray-400 mb-3">
-              ${i.item.effect} 
-              ${i.item.value ? "+ " + i.item.value : ""}
-            </p>
+          <p class="text-xs text-gray-400 mb-2 uppercase">
+            ${i.rarity}
+          </p>
 
-            <p class="text-yellow-400 font-bold mb-3">
-              💰 ${i.price}
-            </p>
+          <p class="text-sm text-gray-400 mb-3">
+            ${i.item.effect} 
+            ${i.item.value ? "+ " + i.item.value : ""}
+          </p>
 
-            <button onclick="buyItemUI(${i.id})"
-              class="bg-green-500 hover:bg-green-600 px-4 py-1 rounded-lg text-sm">
-              Buy
-            </button>
+          <p class="text-yellow-400 font-bold mb-3">
+            💰 ${i.price}
+          </p>
 
-          </div>
+          <button onclick="buyItemUI(${i.id})"
+            class="bg-green-500 hover:bg-green-600 px-4 py-1 rounded-lg text-sm">
+            Buy
+          </button>
 
         </div>
-        `;
-    }).join("");
+
+      </div>
+    `;
+  }).join("");
 }
+
+// 💰 UPDATE GOLD UI
+export function updateGoldUI() {
+  const player = getPlayer();
+  const goldEl = document.getElementById("goldDisplay");
+
+  if (goldEl) {
+    goldEl.innerText = `💰 ${player.gold}`;
+  }
+}
+
+// 🔥 LISTENER
+on("goldChanged", () => {
+  updateGoldUI();
+});
 
 // 🛒 BUY
 window.buyItemUI = function (id) {
-    const success = buyItem(id);
+  const success = buyItem(id);
 
-    if (success) {
-        alert("Item dibeli!");
-    } else {
-        alert("Gold tidak cukup!");
-    }
+  if (success) {
+    showShopPopup("Item berhasil dibeli", "success");
+  } else {
+    showShopPopup("Gold tidak cukup", "error");
+  }
 
-    renderShop();
-    renderInventory();
-    renderDashboard();
+  renderShop();
+  renderInventory();
 };
 
 // 🔄 REFRESH
 window.refreshShopUI = function () {
-    const price = getRefreshPrice();
+  const price = getRefreshPrice();
 
-    const confirmBuy = confirm(`Refresh shop? Cost: ${price} gold`);
+  const confirmBuy = confirm(`Refresh shop? Cost: ${price} gold`);
+  if (!confirmBuy) return;
 
-    if (!confirmBuy) return;
+  const success = refreshShop();
 
-    const success = refreshShop();
+  if (!success) {
+    showShopPopup("Gold tidak cukup untuk refresh!", "error");
+    return;
+  }
 
-    if (!success) {
-        alert("Gold tidak cukup!");
-        return;
-    }
+  showShopPopup("Shop berhasil di-refresh!", "success");
 
-    renderShop();
+  renderShop();
+  renderInventory();
 };
