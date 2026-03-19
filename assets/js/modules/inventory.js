@@ -1,5 +1,5 @@
 import { save, load } from "../storage.js";
-import { addExp, addGold } from "./player.js";
+import { addExp, addGold, getPlayer } from "./player.js";
 
 let inventory = load("inventory") || [];
 
@@ -8,24 +8,25 @@ export function getInventory() {
     return inventory;
 }
 
-// ➕ ADD ITEM (FIXED)
+// ➕ ADD ITEM
 export function addItem(item) {
-    // 🔥 HANDLE LEGACY STRING
     if (typeof item === "string") {
         item = {
             name: item,
             effect: "none",
-            value: 0,
             rarity: "common"
         };
     }
 
-    // 🔥 FIX: pastikan semua field ada
     const newItem = {
-        id: Date.now() + Math.random(), // biar pasti unik
+        id: Date.now() + Math.random(),
         name: item.name || "Unknown Item",
         effect: item.effect || "none",
-        value: item.value || 0,
+
+        // 🔥 support 2 system
+        value: item.value || null,
+        scale: item.scale || null,
+
         rarity: item.rarity || "common"
     };
 
@@ -33,44 +34,90 @@ export function addItem(item) {
     save("inventory", inventory);
 }
 
-// ❌ REMOVE ITEM (AMAN)
+// ❌ REMOVE
 export function removeItem(id) {
     inventory = inventory.filter(i => i.id !== id);
     save("inventory", inventory);
 }
 
-// ⚡ USE ITEM (FIXED)
+// ⚡ USE ITEM (UPGRADED)
 export function useItem(id) {
     const index = inventory.findIndex(i => i.id === id);
     if (index === -1) return;
 
     const item = inventory[index];
+    const player = getPlayer();
 
-    // 🔥 EFFECT SYSTEM
+    let message = "";
+
     switch (item.effect) {
 
-        case "exp":
-            addExp(item.value || 50);
-            break;
+        // 🔥 EXP (support value + scale)
+        case "exp": {
+            let gain = 0;
 
-        case "gold":
-            addGold(item.value || 50);
-            break;
+            if (item.scale) {
+                gain = Math.floor(player.expToNextLevel * item.scale);
+            } else {
+                gain = item.value || 50;
+            }
 
+            addExp(gain);
+            message = `+${gain} EXP`;
+            break;
+        }
+
+        // 💰 GOLD
+        case "gold": {
+            let gain = 0;
+
+            if (item.scale) {
+                gain = Math.floor(player.gold * item.scale + 50);
+            } else {
+                gain = item.value || 50;
+            }
+
+            addGold(gain);
+            message = `+${gain} Gold`;
+            break;
+        }
+
+        // 🔥 BIG EXP
+        case "instant_big_exp": {
+            const gain = item.value
+                ? item.value
+                : Math.floor(player.expToNextLevel * 0.25);
+
+            addExp(gain);
+            message = `🔥 Big EXP +${gain}`;
+            break;
+        }
+
+        // ⚡ DOUBLE EXP (placeholder system)
         case "double_exp":
-            alert("🔥 EXP Boost aktif (belum full system)");
+            message = "🔥 Double EXP aktif (belum full system)";
             break;
 
-        case "instant_big_exp":
-            addExp(item.value || 200);
+        // 🧠 LEVEL UP LANGSUNG
+        case "instant_level":
+            addExp(player.expToNextLevel);
+            message = "🚀 Level Up!";
+            break;
+
+        // 💎 GOLD MULTIPLIER (simple version)
+        case "gold_multiplier":
+            addGold(500);
+            message = "💰 Bonus Gold!";
             break;
 
         default:
-            alert("Item tidak punya efek");
+            message = "Item tidak punya efek";
     }
 
-    // 🔥 FIX: hapus 1 item saja (bukan semua)
+    // ❌ remove item
     inventory.splice(index, 1);
-
     save("inventory", inventory);
+
+    // 🔥 DEBUG / FEEDBACK
+    console.log(`[ITEM USED] ${item.name} → ${message}`);
 }

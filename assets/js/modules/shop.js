@@ -1,7 +1,8 @@
 import { save, load } from "../storage.js";
 import { addItem } from "./inventory.js";
 import { getPlayer, savePlayer } from "./player.js";
-import { emit } from "./eventBus.js"; // ✅ NEW
+import { emit } from "./eventBus.js";
+import { ITEM_POOL } from "../data/items.js";
 
 let shop = load("shop") || [];
 let lastRefresh = load("shopLastRefresh") || 0;
@@ -28,33 +29,7 @@ function getPlayerMultiplier() {
 }
 
 // 🎁 ITEM POOL
-const ITEM_POOL = {
-    common: [
-        { name: "Water 💧", effect: "exp", value: 10 },
-        { name: "Energy Bar 🍫", effect: "exp", value: 15 },
-        { name: "Banana 🍌", effect: "exp", value: 12 },
-        { name: "Coffee ☕", effect: "gold", value: 15 }
-    ],
 
-    rare: [
-        { name: "Protein Shake 🧃", effect: "exp", value: 50 },
-        { name: "Energy Drink ⚡", effect: "exp", value: 60 },
-        { name: "Electrolyte Drink 💦", effect: "gold", value: 80 }
-    ],
-
-    epic: [
-        { name: "Pre-Workout 🔥", effect: "exp", value: 120 },
-        { name: "Focus Pill 🧠", effect: "exp", value: 150 },
-        { name: "Recovery Kit 🧊", effect: "instant_big_exp", value: 200 }
-    ],
-
-    legendary: [
-        { name: "EXP Potion x2 🧪", effect: "double_exp" },
-        { name: "EXP Potion x3 🧪✨", effect: "double_exp" },
-        { name: "Golden Ticket 🎟️", effect: "gold", value: 300 },
-        { name: "Discipline Core 💎", effect: "instant_big_exp", value: 300 }
-    ]
-};
 
 // 🎲 ROLL RARITY
 function rollRarity() {

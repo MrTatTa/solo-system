@@ -1,6 +1,5 @@
 import { getShop, buyItem, refreshShop, getRefreshPrice } from "../modules/shop.js";
 import { renderInventory } from "./inventoryUI.js";
-import { renderDashboard } from "./dashboardUI.js";
 import { getPlayer } from "../modules/player.js";
 import { on } from "../modules/eventBus.js";
 import { showShopPopup } from "./shopPopup.js"; // ✅ NEW

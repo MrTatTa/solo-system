@@ -1,4 +1,5 @@
 import { getPlayer } from "./player.js";
+import { ITEM_POOL } from "../data/items.js";
 
 // 🎯 RARITY CONFIG
 const RARITY = {
@@ -16,22 +17,10 @@ const rewardPool = {
         { type: "gold", value: 20 },
         { type: "gold", value: 30 },
 
-        {
+        ...ITEM_POOL.common.map(item => ({
             type: "item",
-            value: { name: "Water 💧", effect: "exp", value: 10 }
-        },
-        {
-            type: "item",
-            value: { name: "Energy Bar 🍫", effect: "exp", value: 15 }
-        },
-        {
-            type: "item",
-            value: { name: "Banana 🍌", effect: "exp", value: 12 }
-        },
-        {
-            type: "item",
-            value: { name: "Coffee ☕", effect: "gold", value: 15 }
-        }
+            value: item
+        }))
     ],
 
     rare: [
@@ -40,18 +29,10 @@ const rewardPool = {
         { type: "gold", value: 70 },
         { type: "gold", value: 90 },
 
-        {
+        ...ITEM_POOL.rare.map(item => ({
             type: "item",
-            value: { name: "Protein Shake 🧃", effect: "exp", value: 50 }
-        },
-        {
-            type: "item",
-            value: { name: "Energy Drink ⚡", effect: "exp", value: 60 }
-        },
-        {
-            type: "item",
-            value: { name: "Electrolyte Drink 💦", effect: "gold", value: 80 }
-        }
+            value: item
+        }))
     ],
 
     epic: [
@@ -60,18 +41,10 @@ const rewardPool = {
         { type: "gold", value: 150 },
         { type: "gold", value: 220 },
 
-        {
+        ...ITEM_POOL.epic.map(item => ({
             type: "item",
-            value: { name: "Pre-Workout 🔥", effect: "exp", value: 120 }
-        },
-        {
-            type: "item",
-            value: { name: "Focus Pill 🧠", effect: "exp", value: 150 }
-        },
-        {
-            type: "item",
-            value: { name: "Recovery Kit 🧊", effect: "instant_big_exp", value: 200 }
-        }
+            value: item
+        }))
     ],
 
     legendary: [
@@ -80,33 +53,32 @@ const rewardPool = {
         { type: "gold", value: 300 },
         { type: "gold", value: 500 },
 
-        {
+        ...ITEM_POOL.legendary.map(item => ({
             type: "item",
-            value: { name: "EXP Potion x2 🧪", effect: "double_exp" }
-        },
-        {
-            type: "item",
-            value: { name: "EXP Potion x3 🧪✨", effect: "double_exp" }
-        },
-        {
-            type: "item",
-            value: { name: "Golden Ticket 🎟️", effect: "gold", value: 300 }
-        },
-        {
-            type: "item",
-            value: { name: "Discipline Core 💎", effect: "instant_big_exp", value: 300 }
-        }
+            value: item
+        }))
     ]
 };
 
 // 🎲 PILIH RARITY
 function rollRarity() {
+    const player = getPlayer();
+    const luck = player.stats?.luck || 1;
+
     const rand = Math.random() * 100;
 
     let cumulative = 0;
 
     for (let key in RARITY) {
-        cumulative += RARITY[key].chance;
+        // 🔥 luck boost rarity tinggi
+        let chance = RARITY[key].chance;
+
+        if (key === "rare") chance *= (1 + luck * 0.05);
+        if (key === "epic") chance *= (1 + luck * 0.08);
+        if (key === "legendary") chance *= (1 + luck * 0.1);
+
+        cumulative += chance;
+
         if (rand <= cumulative) return key;
     }
 

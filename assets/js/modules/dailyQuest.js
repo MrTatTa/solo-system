@@ -10,7 +10,22 @@ import { showRewardPopup } from "./rewardPopup.js";
 // 📦 INIT
 let quests = load("dailyQuests") || [...defaultDailyQuests];
 let lastDate = load("lastQuestDate");
-let dayCount = load("questDayCount") || 1;
+let dayCount = load("questDayCount") || 0;
+const RESET_INTERVAL = 1000 * 60 * 60 * 24; // 24 jam
+
+export function getTimeUntilReset() {
+    const now = new Date();
+
+    const nextReset = new Date();
+    nextReset.setHours(4, 0, 0, 0); // jam 04:00
+
+    // kalau sekarang sudah lewat jam 4 → ambil besok
+    if (now >= nextReset) {
+        nextReset.setDate(nextReset.getDate() + 1);
+    }
+
+    return nextReset.getTime() - now.getTime();
+}
 
 // 📈 SCALING FUNCTION
 function scaleReward(base) {
@@ -25,15 +40,29 @@ function scaleReward(base) {
 
 // 🚀 INIT SYSTEM
 export function initDailyQuest() {
-    const today = getToday();
+    const now = new Date();
 
-    if (lastDate !== today) {
+    const last = lastDate ? new Date(lastDate) : null;
 
-        // 🔥 CEK KEMARIN
-        if (lastDate) {
+    const todayReset = new Date();
+    todayReset.setHours(4, 0, 0, 0);
+
+    // kalau sekarang sebelum jam 4 → pakai reset kemarin
+    if (now < todayReset) {
+        todayReset.setDate(todayReset.getDate() - 1);
+    }
+
+    // kalau belum pernah reset atau sudah lewat reset berikutnya
+    if (!last || last < todayReset) {
+
+        // 🔥 CEK QUEST KEMARIN
+        if (last) {
             const unfinished = quests.some(q => !q.done && !q.penalty);
 
             if (unfinished) {
+                // ❌ streak putus
+                dayCount = 0;
+
                 applyPenalty();
 
                 quests = quests.filter(q => !q.penalty);
@@ -46,10 +75,14 @@ export function initDailyQuest() {
                     done: false,
                     penalty: true
                 });
+
             } else {
-                // ✅ kalau semua selesai → naik streak hari
-                dayCount++;
+                // ✅ streak naik
+                dayCount += 1;
             }
+        } else {
+            // ✅ pertama kali pakai → mulai dari 1
+            dayCount = 1;
         }
 
         // 🔄 RESET QUEST
@@ -58,10 +91,10 @@ export function initDailyQuest() {
             done: false
         }));
 
-        lastDate = today;
+        lastDate = now.toISOString();
 
         save("dailyQuests", quests);
-        save("lastQuestDate", today);
+        save("lastQuestDate", lastDate);
         save("questDayCount", dayCount);
     }
 }
@@ -69,6 +102,10 @@ export function initDailyQuest() {
 // 📥 GET
 export function getQuests() {
     return quests || [];
+}
+
+export function getStreak() {
+    return dayCount || 0;
 }
 
 // ➕ TAMBAH QUEST CUSTOM
